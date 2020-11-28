@@ -1,7 +1,7 @@
-var timeSet = 10;
+var timeSet = 60;
 var turnCounter = 0;
 var money = 0;
-var moneyPerTurn = 4;
+var moneyPerTurn = 1;
 var moneyStep = 1;
 var score = 0;
 var running = false;
@@ -29,7 +29,8 @@ var tick = setInterval(updateGrid, 100);
 var scoreTick = setInterval(updateScore, 100);
 var scoreHistory = "";
 
-var resetFlag = false;
+var resetTime = false;
+var resetMoney = false;
 
 function makeTuple(a,b) {
 	return [a,b];
@@ -51,6 +52,7 @@ function startTurn() {
 		running = true;
 		turnCounter += 1;
 		document.getElementById("turnCounter").innerHTML = "TURN: " + turnCounter + " / 20";
+		document.getElementById("start").value = "End Turn?";
 
 		if (turnCounter == 3 || turnCounter == 8 || turnCounter == 14)
 			moneyPerTurn += moneyStep;
@@ -60,15 +62,30 @@ function startTurn() {
 		var turnTimer = setInterval(timer, 1000);
 		var updateMoney = setInterval(money_u, 100);
 	}
+	else if (running) {
+		var result = confirm("Are you sure you want to end your turn early?");
+		if (result) {
+			resetTime = true;
+			document.getElementById("timerText").innerHTML = "TURN FINISHED";
+			document.getElementById("start").value = ">>>";
+			running = false;
+			movementMode = false;
+			buildingMode = false;
+			unitsPlacedThisTurn = [];
+			resetRadio();
+		}
+	}
 	function timer() {
-		if (resetFlag) {
+		if (resetTime) {
 			document.getElementById("timerText").style.color = "black";
 			clearInterval(turnTimer);
+			resetTime = false;
 		}
 		else if (time <= 0) {
 			clearInterval(turnTimer);
 			document.getElementById("timerText").style.color = "black";
 			document.getElementById("timerText").innerHTML = "TURN FINISHED";
+			document.getElementById("start").value = ">>>";
 			running = false;
 			movementMode = false;
 			buildingMode = false;
@@ -84,8 +101,10 @@ function startTurn() {
 	}
 
 	function money_u() {
-		if (resetFlag)
+		if (resetMoney) {
 			clearInterval(updateMoney);
+			resetMoney = false;
+		}
 		else
 			document.getElementById("moneyCount").innerHTML = "CURRENT MONEY: " + money + " (+" + moneyPerTurn + ")";
 	}
@@ -290,7 +309,8 @@ function addScore() {
 function reset() {
 	var result = confirm("Are you sure you want to reset the game?");
 	if (result) {
-		resetFlag = true;
+		resetTime = true;
+		resetMoney = true;
 
 		turnCounter = 0;
 		money = 0;
@@ -314,5 +334,6 @@ function reset() {
 		document.getElementById("scoreCount").innerHTML = "SCORE:";
 		document.getElementById("moneyCount").innerHTML = "CURRENT MONEY:";
 		document.getElementById("score_history").innerHTML = "";
+		document.getElementById("start").value = ">>>";
 	}
 }
