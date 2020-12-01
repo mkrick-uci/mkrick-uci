@@ -237,9 +237,9 @@ function updateGrid() {
 			var tile = document.getElementById(location);
 			if (unitGrid[row][col] != "" && tile.childNodes.length == 0) {
 				var path = "./" + unitGrid[row][col];
-				path.toLowerCase();
 				path = path.concat(".png");
 				var img = document.createElement("img");
+				path.toLowerCase();
 				img.src = path;
 				tile.appendChild(img);
 			}
