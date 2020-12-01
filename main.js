@@ -11,10 +11,10 @@ var unitGrid = [["","","","","","","",""],["","","","","","","",""],["","","",""
 var buildingGrid = [["","","","","","","",""],["","","","","","","",""],["","","","","","","",""],["","","","","","","",""],["","","","","","","",""],["","","","","","","",""],["","","","","","","",""],["","","","","","","",""]];
 
 var costs = {
-	"circle": 1,
-	"square": 2,
-	"pentagon": 4,
-	"compass": 3
+	"Circle": 1,
+	"Square": 2,
+	"Pentagon": 4,
+	"Compass": 3
 }
 
 var movementMode = false;
@@ -207,7 +207,7 @@ function addUnit(row, col) {
 				else { //otherwise, place the unit
 					buildingGrid[row][col] = currentUnit;
 					money -= costs[currentUnit];
-					if (currentUnit == "compass")
+					if (currentUnit == "Compass")
 						moneyPerTurn += 1;
 				}
 			}
