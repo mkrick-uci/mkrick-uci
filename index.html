@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="main.css">
 <script src="main.js"> </script>
 <script src ="https://cdn.jsdelivr.net/npm/html2canvas@1.0.0-rc.5/dist/html2canvas.min.js"> </script>
+<script src="https://superal.github.io/canvas2image/canvas2image.js"></script>
 </head>
 
 <body>
@@ -220,21 +221,15 @@
 	<script type="text/javascript">
 
 			function copyScreenshot() {
-				if (document.getElementById("screenshot") !== null)
-					document.body.removeChild(document.getElementById("screenshot"));
-				var screenshot = document.createElement("div");
-				screenshot.id = "screenshot";
-				html2canvas(document.body).then(function(canvas) {
-						screenshot.appendChild(canvas);
+				html2canvas(document.body, {
+					onrendered: function(canvas) {
+						return Canvas2Image.saveAsPNG(canvas);
+					}
 				});
-				document.body.appendChild(screenshot);
 			}
 	</script>
 
 	<input type="button" id="resetbutton" value="Reset?" onclick="reset();">
-
-	<br>
-	<b> SCREENSHOT: </b>
 
 </body>
 
