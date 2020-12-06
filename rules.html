@@ -2,14 +2,66 @@
 <meta charset="UTF-8">
 <html>
 <head>
-<title> Tile Control: Rules </title>
+<title> Square Up: Rules </title>
 <link rel="stylesheet" href="main.css">
 
 </head>
 
-<body>
-	PLACEHOLDER TEXT
-The basic rules of Tile Control are relatively simple. It should be kept in mind that units may be heavily changed over the course of development. Players are given a 8-by-8 square board of empty tiles at the beginning of the game. Players take their turns simultaneously on a timer dictated by the program. During this point, players have their screen hidden from each other. This part of each turn will from now on be called the “planning phase.” Each planning phase, the players are given an amount of currency that scales the number of turns, which they use to place units on the edges of the board. Each individual unit costs a certain amount of this currency to place on the board. Each unit has a number associated with it, that indicates its strength. A few units also have additional effects that will be available to the players within the program. If they still have units from previous turns, they can move the unit one square in any cardinal direction (up, down, left, right) each turn. Once the timer is up, both players reveal their screens to one another. Each player’s board actually represents the same board, and any overlapping units need to fight. The unit with the higher strength stays on the board, while the weaker one is removed. Like with many other board games, the abilities of each unit and other units may affect the outcomes of fights. While most units are meant to fight other units, some units are stationary and will automatically lose a fight. However, these types of units, called buildings, can have a friendly unit on top of it. This unit can essentially “guard” the building from attackers. These buildings grant extra benefits, such as extra income, increased strength for certain units, etc. After 20 turns, the game ends, and the player with the highest cumulative strength of all their units is the winner.
+<body id="rules">
+
+	<b style="font-size: 35pt">Square Up: Rules </b> <br>
+	<p>
+		<b>Players: </b> 2 players <br>
+		<u>NOTE:</u> Technically, <i>Square Up</i> could accomodate for more players, however the game is primarily designed for 1-vs-1 gameplay. To add more players, simply have the extra players also have a grid each, and compare grids between all players.
+	</p>
+	<p>
+		<b>Premise</b>
+		<br>
+		<i>Square Up</i> is a strategic game in which players control different teams of shapes, fighting for control of a piece of grid paper. Players can place shapes to control certain squares of the grid, or create tools to help them in other ways.
+	</p>
+	<p>
+		<b> User Interface </b>
+		<br>
+		The turn timer is up at the very top of the screen. Once there are less than 10 seconds left, the timer will turn red. Underneat the turn timer is the turn counter, which keeps track of the current turn of the game.<br>
+		To start the game or start a subsequent turn, click the button labeled "<i> >>> </i>". When your turn is currently running, this button changes to say "<i>End Turn?</i>" Click this if you are done with your current turn to end the timer early.<br>
+		Underneath the start turn button is your score counter. This counter will update as you add to your score over the course of the game (explained later in this section). <br>
+		Underneat the score counter is your ink counter. The first number is your current ink total, while the number in parenthesis is the amount of ink you will gain next turn. <br>
+		To select "<i>Movement Mode</i>", a shape you want to place, or a tool you want to place, select the radio button next to each one's name. Once a shape or tool is selected, that you have enough ink to place, click the square on the grid on the right of the screen to place that shape or tool. The site will not allow you to select a shape or tool you cannot afford. <br>
+		In "<i>Movement Mode</i>", click on a shape on the grid to select that shape for movement. The square the shape currently occupies will be surrounded by a red border. Squares the shape can move to will be surrounded by a green border. Click on one of these squares to move the shape to that square. You can also cancel moving a shape by clicking on the same shape again.<br>
+		When the turn timer is not counting down, you cannot select any shapes or tools. Instead, when you click on a shape or tool, it automatically deletes that shape or tool from the grid. The click will delete the shape before the tool, so two clicks will be required if you want to delete both. <br>
+		To add to your score, input a number into the box and press the "<i>Add</i>" button. You cannot have a negative score, but the site does allow you to input negative numbers to remove from your score, incase you accidentally input something incorrectly. Below the "<i>Add</i>" button is also a history of your score, so you can keep track of what was added and to prevent cheating. <br>
+		In the very bottom right corner is a red button reading "<i>Reset?</i>" If you need to reset the site for whatever reason, or want to play again once the current game has ended, press the button to reset everything for a new game.
+	</p>
+	<p>
+		<b> Ink </b> 
+		<br>
+		In <i>Square Up</i>, shapes and tools must be bought using the currency called ink. The ink cost of a unit increases the stronger the shape or tool is. Each turn, the player is automatically given more ink, starting at 1 per turn. This per turn amount increases as the game goes on.
+	</p>
+	<p>
+		<b> Turns </b>
+		<br>
+		All players take their turns simultaneously, on a 60 second timer. During these 60 seconds, both players can place shapes or tools on the grid. The grid columns are marked with letters, while the the rows are marked with numbers. Units and tools are placed within each square. Shapes can also be moved one square in any of the cardinal directions (up, down, left, and right). However, shapes cannot be moved the same turn they were placed on the grid. In order to move a shape, they must select the "<i>Movement Mode</i>" option. Unlike shapes, tools cannot be moved, however shapes can be freely placed on top of them. Once both players have finished their turn, both players then reveals their screen and checks to see if any units share the same square. If they do, then the shapes must fight to see who keeps control of the square. The player that wins the fight then adds the cost of the units that lost to their score. Neither player can start their next turn until all square disputes have been resolved.
+	</p>
+	<p>
+		<b> Shapes </b>
+		<br>
+		Shapes are the basic units of <i>Square Up</i>. Each shape has a cost and a strength. The cost indicates how much ink is required to place them. The strength indicates how strong they are against other opponents shapes. Shapes can be placed anywhere on the grid, and can move to any adjacent square in the cardinal directions (up, down, left, or right). Shapes are the unit that primarily does combat. When two opposing shapes share the same square, they initiate combat. In general, the shape with the higher strength wins, and the weaker shape is deleted from that player's grid. The winning player then adds the shape's cost to their score. If two shapes have the same strength, both are destroyed and neither player gains any score.
+	</p>
+	<p>
+		<b> Tools </b>
+		<br>
+		Tools differ from shapes in that they cannot move around the grid and also do not have a strength. By default, they lose against any enemy shape that occupies the same square. Like shape-on-shape combat, when a tool loses they are deleted from the grid and the winning player adds the tool's cost to their score. However, friendly shapes can occupy the same square as a tool, and essentially "defend" the tool from enemies. If a friendly shape loses while it is in the same square as a tool, the tool is also deleted. If both shapes are destroyed through a tied strength score, both shapes are deleted by the tool remains on the grid. Tools only have a cost to place, however they have special abilities that shapes do not have, making them valuable assets. Unlike shapes, tools of either player can be on the same square without interacting.
+	</p>
+	<p>
+		<b> Special Ability Rule </b>
+		<br>
+		In <i> Square Up</i>, there is a special rule. No matter what this rule document says, the special ability of a shape or tool always trumps the rule book. While the rule book explains what happens in normal circumstances, special abilities purposefully break these circumstances.
+	</p>
+	<p>
+		<b> Win Condition </b> <br>
+		<i> Square Up </i> takes place over 20 simultaneous turns. Once the 20 turns are over, the player with the highest score wins. 
+
+	</p>
 
 
 </body>

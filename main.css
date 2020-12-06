@@ -1,5 +1,11 @@
 body {
-	background-color: #c9cfd6;
+	background-color: #ffffee;
+}
+
+#rules {
+	font-size: 15pt;
+	text-align: justify;
+	margin-right: 20em;
 }
 
 table {
@@ -10,7 +16,7 @@ table {
 	table-layout: fixed;
 }
 th, td {
-	border: 1px solid black;
+	border: 1px solid blue;
 	width: calc(100%/9);
 	height: calc(100%/9);
 	background-repeat: no-repeat;
@@ -23,7 +29,7 @@ img {
 }
 
 #resetbutton {
-	position: absolute;
+	position: fixed;
 	bottom: 0px;
 	left: 0px;
 	font-weight: bold;
@@ -31,4 +37,12 @@ img {
 	width: 5%;
 	background-color: red;
 
+}
+
+#copytable {
+	position: fixed;
+	bottom: 0px;
+	right: 0px;
+	font-weight: bold;
+	background-color: lightblue;
 }

@@ -2,15 +2,16 @@
 <meta charset="UTF-8">
 <html>
 <head>
-<title> Tile Control </title>
+<title> Square Up </title>
 
 <link rel="stylesheet" href="main.css">
 <script src="main.js"> </script>
+<script src ="https://cdn.jsdelivr.net/npm/html2canvas@1.0.0-rc.5/dist/html2canvas.min.js"> </script>
 </head>
 
 <body>
 
-	<b style="font-size: 35pt">Tile Control </b> <br>
+	<b style="font-size: 35pt">Square Up </b> <br>
 	<b style="font-size: 20pt"> By Miles Krick </b> <br>
 	Don't know the rules? Click <a href="rules.html" target="_blank"> here </a>
 	<br> <hr width=25% align=left color=#000000>
@@ -26,16 +27,15 @@
 	<br>
 	<div id="scoreCount"> SCORE: </div>
 	<br>
-	<div id="moneyCount"> CURRENT MONEY: </div>
+	<div id="moneyCount"> CURRENT INK: </div>
 	<hr width=25% align=left color=#000000>
 
 
-
-	<b style="font-size: 20pt"> UNITS: </b> <br>
-	
 	<input type="radio" id="movement" name="unit" value="circle" onclick="switchToMovement();">
-	<label for="circle" style="font-size: 15pt"> <i>Movement Mode</i> </label>
+	<label for="movement" style="font-size: 15pt"> <i>Movement Mode</i> </label>
 	<br>
+
+	<b style="font-size: 20pt"> SHAPES: </b> <br>
 
 	<input type="radio" id="circle" name="unit" value="circle" onclick="selectUnitForAdd('circle');">
 	<label for="circle" style="font-size: 15pt"> <i>Circle</i> </label>
@@ -44,24 +44,57 @@
 
 	<br>
 	<input type="radio" id="square" name="unit" value="square" onclick="selectUnitForAdd('square');">
-	<label for="circle" style="font-size: 15pt"> <i>Square</i> </label>
+	<label for="square" style="font-size: 15pt"> <i>Square</i> </label>
 	<br> 
-	 &emsp; &nbsp; Cost: 2 | Strength: 3
+	 &emsp; &nbsp; Cost: 2 | Strength: 2
 
 	<br>
-	<input type="radio" id="pentagon" name="unit" value="pentagon" onclick="selectUnitForAdd('pentagon');">
-	<label for="circle" style="font-size: 15pt"> <i>Pentagon</i> </label>
+	<input type="radio" id="star" name="unit" value="star" onclick="selectUnitForAdd('star');">
+	<label for="star" style="font-size: 15pt"> <i>Star</i> </label>
 	<br> 
-	 &emsp; &nbsp; Cost: 4 | Strength: 5
+	 &emsp; &nbsp; Cost: 4 | Strength: 3 <br>
+	 &emsp; &nbsp; Can move any number of squares in each direction.
 
 	<br>
+	<input type="radio" id="hexagon" name="unit" value="hexagon" onclick="selectUnitForAdd('hexagon');">
+	<label for="hexagon" style="font-size: 15pt"> <i>Hexagon</i> </label>
+	<br> 
+	 &emsp; &nbsp; Cost: 5 | Strength: 5
+
+	<br>
+	<input type="radio" id="fractal" name="unit" value="fractal" onclick="selectUnitForAdd('fractal');">
+	<label for="fractal" style="font-size: 15pt"> <i>Fractal</i> </label>
+	<br> 
+	 &emsp; &nbsp; Cost: 10 | Strength: 1 <br>
+	 &emsp; &nbsp; Automatically destroys any other shape in the same square except <br>
+	 &emsp; &nbsp; for <i>Circles</i>.
+
+	<br>
+	<b style="font-size: 20pt"> TOOLS: </b> <br>
 	<input type="radio" id="compass" name="unit" value="compass" onclick="selectBuildingForAdd('compass');">
-	<label for="circle" style="font-size: 15pt"> <i>Compass</i> </label>
+	<label for="compass" style="font-size: 15pt"> <i>Compass</i> </label>
 	<br> 
 	 &emsp; &nbsp; Cost: 3 <br>
-	 &emsp; &nbsp; Helps make more shapes. Money per turn +1.
+	 &emsp; &nbsp; Minimizes mistakes and saves ink. Ink per turn +1.
 
+	 <br>
+	<input type="radio" id="scissors" name="unit" value="scissors" onclick="selectBuildingForAdd('scissors');">
+	<label for="scissors" style="font-size: 15pt"> <i>Scissors</i> </label>
+	<br> 
+	 &emsp; &nbsp; Cost: 4 <br>
+	 &emsp; &nbsp; Cuts off pieces of enemy shapes. -2 to the strength of enemy shapes <br>
+	 &emsp; &nbsp; on this square.
 
+	 <br>
+	<input type="radio" id="inksplot" name="unit" value="inksplot" onclick="selectBuildingForAdd('inksplot');">
+	<label for="inksplot" style="font-size: 15pt"> <i>Ink Splot</i> </label>
+	<br> 
+	 &emsp; &nbsp; Cost: 7 <br>
+	 &emsp; &nbsp; Covers a 2-by-2 area with extra ink. +1 to friendly shapes on an ink  <br>
+	 &emsp; &nbsp; splot. The square this tool is placed acts as the top corner. Does not <br>
+	 &emsp; &nbsp; remove any tools in this area.
+
+	 
 
 	<br>
 	<hr width=25% align=left color=#000000>
@@ -73,10 +106,14 @@
 	Score History:
 	<div id="score_history"></div>
 
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
+	<br>
 
-
-
-	<table width=900 height=900>
+	<table id="grid" width=900 height=900>
 		<tr>
 			<th style="border: 0px"></th>
 			<th>A</th>
@@ -178,7 +215,26 @@
 		</tr>
 	</table>
 
+	<input type="button" id="copytable" value= "Copy Grid?" onclick="copyScreenshot()">
+
+	<script type="text/javascript">
+
+			function copyScreenshot() {
+				if (document.getElementById("screenshot") !== null)
+					document.body.removeChild(document.getElementById("screenshot"));
+				var screenshot = document.createElement("div");
+				screenshot.id = "screenshot";
+				html2canvas(document.body).then(function(canvas) {
+						screenshot.appendChild(canvas);
+				});
+				document.body.appendChild(screenshot);
+			}
+	</script>
+
 	<input type="button" id="resetbutton" value="Reset?" onclick="reset();">
+
+	<br>
+	<b> SCREENSHOT: </b>
 
 </body>
 
