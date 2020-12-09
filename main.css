@@ -5,14 +5,16 @@ body {
 #rules {
 	font-size: 15pt;
 	text-align: justify;
-	margin-right: 20em;
+	margin-right: 25vw;
 }
 
 table {
 	border-spacing: 0px;
 	position: absolute;
 	top: 0px;
-	right: 50px;
+	right: 30px;
+	height: 45vw;
+	width: 45vw;
 	table-layout: fixed;
 }
 th, td {
@@ -23,18 +25,18 @@ th, td {
 }
 
 img {
-	width: 70px;
-	height: 70px;
+	width: 4vw;
+	height: 4vw;
 
 }
 
 #resetbutton {
 	position: fixed;
 	bottom: 0px;
-	left: 0px;
+	left: 100px;
 	font-weight: bold;
-	height: 5%;
-	width: 5%;
+	height: 50px;
+	width: 100px;
 	background-color: red;
 
 }
@@ -42,7 +44,9 @@ img {
 #copytable {
 	position: fixed;
 	bottom: 0px;
-	right: 0px;
+	left: 0px;
+	height: 50px;
+	width: 100px;
 	font-weight: bold;
 	background-color: lightblue;
 }

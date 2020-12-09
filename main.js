@@ -32,81 +32,71 @@ var tick = setInterval(updateGrid, 100);
 var scoreTick = setInterval(updateScore, 100);
 var scoreHistory = "";
 
-var resetTime = false;
-var resetMoney = false;
+var f_resetTime = false;
+var f_resetMoney = false;
+var f_earlyEnd = false;
 
 function makeTuple(a,b) {
 	return [a,b];
 }
 
-function resetRadio() {
-	radioUnits = document.getElementsByName("unit");
-	for (i = 0; i < radioUnits.length; i++)
-		radioUnits[i].checked = false;
-}
+// Updating Text and Information
 
 function startTurn() {
-	if (turnCounter == 20) {
-		document.getElementById("TimerText").innerHTML = "GAME FINISHED";
-		done = true;
-	}
 	if (running == false) {
-		var time = timeSet;
-		running = true;
-		turnCounter += 1;
-		document.getElementById("turnCounter").innerHTML = "TURN: " + turnCounter + " / 20";
-		document.getElementById("start").value = "End Turn?";
-		if (turnCounter == 6 || turnCounter == 11 || turnCounter == 16)
-			moneyPerTurn += 1;
-		money += moneyPerTurn;
-		timer();
-		var turnTimer = setInterval(timer, 1000);
-		var updateMoney = setInterval(money_u, 100);
+		if (turnCounter == 20) {
+			document.getElementById("timerText").innerHTML = "GAME FINISHED!";
+			done = true;
+		}
+		else {
+			running = true;
+			var time = timeSet;
+			turnCounter += 1;
+			document.getElementById("turnCounter").innerHTML = "TURN: " + turnCounter + " / 20";
+			document.getElementById("start").value = "End Turn?";
+
+			if (turnCounter == 6 || turnCounter == 11 || turnCounter == 16)
+				moneyPerTurn += 1;
+			money += moneyPerTurn;
+
+			timerSetUp();
+
+			var turnTimer = setInterval(timer, 1000);
+			var moneyInterval = setInterval(moneyUpdate, 100);
+		}
+
 	}
+
 	else if (running) {
 		var result = confirm("Are you sure you want to end your turn early?");
 		if (result) {
-			resetTime = true;
-			document.getElementById("timerText").innerHTML = "TURN FINISHED";
-			document.getElementById("start").value = ">>>";
-			running = false;
-			movementMode = false;
-			buildingMode = false;
-			unitsPlacedThisTurn = [];
-			currentUnit = ""
-			resetRadio();
+			f_earlyEnd = true;
 		}
 	}
+
+	/// Turn Button Helper Functions
+
+	function timerSetUp() {
+		document.getElementById("timerText").innerHTML = time + " SECONDS";
+	}
+
 	function timer() {
-		if (resetTime) {
-			document.getElementById("timerText").style.color = "black";
+		time -= 1;
+		if (time <= 0 || f_resetTime || f_earlyEnd) {
 			clearInterval(turnTimer);
-			resetTime = false;
-		}
-		else if (time <= 0) {
-			clearInterval(turnTimer);
-			document.getElementById("timerText").style.color = "black";
-			document.getElementById("timerText").innerHTML = "TURN FINISHED";
-			document.getElementById("start").value = ">>>";
-			running = false;
-			movementMode = false;
-			buildingMode = false;
-			unitsPlacedThisTurn = [];
-			currentUnit = "";
-			resetRadio();
+			resetTime();
 
 		} else {
 			document.getElementById("timerText").innerHTML = time + " SECONDS";
 			if (time <= 10)
 				document.getElementById("timerText").style.color = "red";
 		}
-		time -= 1;
 	}
 
-	function money_u() {
-		if (resetMoney) {
-			clearInterval(updateMoney);
-			resetMoney = false;
+	function moneyUpdate() {
+		if (f_resetMoney) {
+			clearInterval(moneyInterval);
+			f_resetMoney = false;
 		}
 		else {
 			moneyNextTurn = moneyPerTurn;
@@ -114,139 +104,8 @@ function startTurn() {
 				moneyNextTurn += 1;
 			document.getElementById("moneyCount").innerHTML = "CURRENT INK: " + money + " (+" + moneyNextTurn + ")";
 		}
+
 	}
-}
-
-function selectUnitForAdd(unitName) {
-	if (!running) {
-		alert("Can only place units while turn is running!");
-		resetRadio();
-	}
-
-	else {
-		currentUnit = unitName;
-		movementMode = false;
-		buildingMode = false;
-	}
-}
-
-function switchToMovement() {
-	if (!running) {
-		alert("Cannot move units when turn isn't running!");
-		resetRadio();
-	}
-	else {
-		currentUnit = "";
-		movementMode = true;
-		buildingMode = false;
-	}
-}
-
-function selectBuildingForAdd(unitName) {
-	if (!running) {
-		alert("Can only place tools while turn is running!");
-		resetRadio();
-	}
-	else {
-		currentUnit = unitName;
-		movementMode = false;
-		buildingMode = true;
-	}
-}
-
-function addUnit(row, col) {
-	if (done)
-		alert("Game is finished.");
-	else if(!running) { //if the turn timer isn't running...
-		if (unitGrid[row][col] != "") //and the tile is occupied, delete it
-			unitGrid[row][col] = "";
-		else if (unitGrid[row][col] == "" && buildingGrid[row][col] != "")
-			buildingGrid[row][col] = "";
-
-	} 
-	else { //if the turn timer is running...
-
-		if (movementMode)
-			moveUnit(row, col);
-
-		else if (currentUnit == "") //show error if no unit has been selected yet
-			alert("No unit selected!");
-
-		else if (buildingMode) {
-			if (buildingGrid[row][col] == "" && currentUnit != "") {
-				if (money - costs[currentUnit] < 0) //show error if the user doesn't have enough money
-					alert ("Not enough money to buy this tool!");
-				else { //otherwise, place the unit
-					buildingGrid[row][col] = currentUnit;
-					money -= costs[currentUnit];
-					if (currentUnit == "compass")
-						moneyPerTurn += 1;
-					if (currentUnit == "inksplot") {
-						var squares = getSquare(row, col);
-						for (i = 0; i < squares.length; i++) {
-							if (buildingGrid[squares[i][0]][squares[i][1]] == "")
-								buildingGrid[squares[i][0]][squares[i][1]] = currentUnit;
-						}
-					}
-				}
-			}
-		}
-
-		else if (unitGrid[row][col] == "" && currentUnit != "") { //if there is a unit selected and the tile is empty...
-			if (money - costs[currentUnit] < 0) //show error if the user doesn't have enough money
-				alert ("Not enough money to buy this unit!");
-			else { //otherwise, place the unit
-				unitGrid[row][col] = currentUnit;
-				money -= costs[currentUnit];
-				unitsPlacedThisTurn.push(makeTuple(row, col));
-			}
-		}
-		else
-			alert("Cannot place a unit on top of another!");
-	}
-
-}
-
-function moveUnit(row, col) {
-	if (unitGrid[row][col] != "" && currentUnit == "") { //and they do not have unit selected and the tile they selected is occupied...
-				var legal = true;
-				for (i = 0; i < unitsPlacedThisTurn.length; i++) {
-					if (unitsPlacedThisTurn[i][0] == row && unitsPlacedThisTurn[i][1] == col) { //if the unit on the tile wasn't placed this turn...
-						alert("Unit's cannot be moved the same turn they were placed or was already moved!");
-						legal = false;
-					}
-				}
-				if (legal) {
-					currentUnit = unitGrid[row][col]; //select that unit for movement
-					move_row = row;
-					move_col = col;
-				}
-			}
-
-
-			else if (unitGrid[row][col] == "" && currentUnit != "") { //and a unit is already selected and the tile they selected isn't occupied...
-				var legalMoves = findLegalMoves(move_row, move_col);
-				var found = false;
-				for (i = 0; i < legalMoves.length; i++) {
-					if (legalMoves[i][0] == row && legalMoves[i][1] == col) { //if the selected tile is a legal move for the unit...
-						unitGrid[row][col] = currentUnit;
-						unitGrid[move_row][move_col] = ""; //move the unit
-						currentUnit = "";
-						found = true;
-						unitsPlacedThisTurn.push(makeTuple(row, col));
-					}
-				}
-				if (!found)
-					alert("Cannot move there!");
-
-			}
-			else if (unitGrid[row][col] != "" && currentUnit != "") //show error if unit is selected but the new tile is already occupied
-				if (row == move_row && col == move_col)
-					currentUnit = "";
-				else
-					alert("Cannot move a unit on top of another!");
-			else if (unitGrid[row][col] == "" && currentUnit == "" && buildingGrid[row][col] != "")
-				alert("Tools cannot be moved!");
 }
 
 function updateGrid() {
@@ -256,13 +115,16 @@ function updateGrid() {
 			var location = row.toString();
 			location = location.concat(col.toString());
 			var tile = document.getElementById(location);
-			if (unitGrid[row][col] != "" && tile.childNodes.length == 0) {
+			if (unitGrid[row][col] != "") {
 				var path = "./img/" + unitGrid[row][col];
 				path = path.concat(".png");
 				var img = document.createElement("img");
 				path.toLowerCase();
 				img.src = path;
-				tile.appendChild(img);
+				if (tile.childNodes.length == 0)
+					tile.appendChild(img);
+				else if (tile.childNodes.length > 0)
+					tile.childNodes[0].src = path;
 			}
 			else if (unitGrid[row][col] == "" && tile.childNodes.length > 0) {
 				tile.removeChild(tile.childNodes[0]);
@@ -312,41 +174,6 @@ function updateScore() {
 		document.getElementById("score_history").innerHTML = scoreHistory + "<br>=" + score;
 }
 
-function findLegalMoves(row, col) {
-	var moves =[];
-	if (currentUnit == "star") {
-		for (i = 0; i < 8; i++) {
-			if (i != row)
-				moves.push(makeTuple(i, col));
-			if (i != col)
-				moves.push(makeTuple(row, i));
-		}
-	}
-	else {
-		if (row != 0)
-			moves.push(makeTuple(row-1, col));
-		if (col != 0)
-			moves.push(makeTuple(row, col-1));
-		if (row != 7)
-			moves.push(makeTuple(row+1, col));
-		if (col != 7)
-			moves.push(makeTuple(row, col+1));
-	}
-	return moves;
-}
-
-function getSquare(row, col) {
-	var moves = [];
-	if (row != 7) {
-		moves.push(makeTuple(row+1, col));
-		if (col != 7)
-			moves.push(makeTuple(row+1, col+1));
-	}
-	if (col != 7)
-		moves.push(makeTuple(row, col+1));
-	return moves;
-}
-
 function addScore() {
 	var inp = parseInt(document.getElementById("score_input").elements[0].value);
 	if (isNaN(inp))
@@ -366,12 +193,248 @@ function addScore() {
 	}
 }
 
+/// Selection and Unit Addition
+
+function selectUnitForAdd(unitName) {
+	if (!running) {
+		alert("Can only place shapes while turn is running!");
+		resetRadio();
+	}
+
+	else {
+		currentUnit = unitName;
+		movementMode = false;
+		buildingMode = false;
+	}
+}
+
+function selectBuildingForAdd(unitName) {
+	if (!running) {
+		alert("Can only place tools while turn is running!");
+		resetRadio();
+	}
+	else {
+		currentUnit = unitName;
+		movementMode = false;
+		buildingMode = true;
+	}
+}
+
+function switchToMovement() {
+	if (!running) {
+		alert("Cannot move shapes when turn isn't running!");
+		resetRadio();
+	}
+	else {
+		currentUnit = "";
+		movementMode = true;
+		buildingMode = false;
+	}
+}
+
+function addUnit(row, col) {
+	if (done)
+		alert("Game is finished.");
+	else if(!running) { //if the turn timer isn't running...
+		if (unitGrid[row][col] != "") //and the tile is occupied, delete it
+			unitGrid[row][col] = "";
+		else if (unitGrid[row][col] == "" && buildingGrid[row][col] != "")
+			buildingGrid[row][col] = "";
+
+	} 
+	else { //if the turn timer is running...
+
+		if (movementMode)
+			moveUnit(row, col);
+
+		else if (currentUnit == "") //show error if no unit has been selected yet
+			alert("No shape or tool selected!");
+
+		else if (buildingMode) {
+			placeBuilding(row, col);
+		}
+
+		else if (currentUnit != "") { //if there is a unit selected and the tile is empty...
+			placeShape(row, col);
+		}
+	}
+}
+
+function moveUnit(row, col) {
+	if (unitGrid[row][col] != "" && currentUnit == "") { //and they do not have unit selected and the tile they selected is occupied...
+				var legal = true;
+				for (i = 0; i < unitsPlacedThisTurn.length; i++) {
+					if (unitsPlacedThisTurn[i][0] == row && unitsPlacedThisTurn[i][1] == col) { //if the unit on the tile wasn't placed this turn...
+						alert("Shapes cannot be moved the same turn they were placed or was already moved!");
+						legal = false;
+					}
+				}
+				if (legal) {
+					currentUnit = unitGrid[row][col]; //select that unit for movement
+					move_row = row;
+					move_col = col;
+				}
+			}
+
+	else if ((unitGrid[row][col] == "" && currentUnit != "") || (unitGrid[row][col] != "" && (currentUnit == "circle" || currentUnit == "twocircles"))) { //and a unit is already selected and the tile they selected isn't occupied...
+		var legalMoves = findLegalMoves(move_row, move_col);
+		var found = false;
+		for (i = 0; i < legalMoves.length; i++) {
+			if (legalMoves[i][0] == row && legalMoves[i][1] == col) { //if the selected tile is a legal move for the unit...
+				if (currentUnit == "circle") {
+					if (unitGrid[row][col] == "circle")
+						unitGrid[row][col] = "twocircles";
+					else if (unitGrid[row][col] == "twocircles")
+						unitGrid[row][col] = "threecircles";
+					else if (unitGrid[row][col] != "") {
+						alert("Cannot move one shape on top of another!");
+						return;
+					}
+					else
+						unitGrid[row][col] = currentUnit;
+				}
+				else if (currentUnit == "twocircles" && unitGrid[row][col] == "circle")
+					unitGrid[row][col] = "threecircles";
+				else if (unitGrid[row][col] != "" && currentUnit != "circle") {
+					alert("Cannot move one shape on top of another!");
+					return;
+				}
+				else
+					unitGrid[row][col] = currentUnit;
+				unitGrid[move_row][move_col] = ""; //move the unit
+				currentUnit = "";
+				found = true;
+				var alreadyInArray = false;
+				for (i = 0; i < unitsPlacedThisTurn.length; i++) {
+					if (unitsPlacedThisTurn[i][0] == row && unitsPlacedThisTurn[i][1] == col) {
+						alreadyInArray = true;
+						break;
+					}
+				}
+				if (!alreadyInArray)
+					unitsPlacedThisTurn.push(makeTuple(row, col));
+				if (found)
+					break;
+			}
+		}
+		if (!found)
+			alert("Cannot move there!");
+
+	}
+	else if (unitGrid[row][col] != "" && currentUnit != "") {//show error if unit is selected but the new tile is already occupied
+		if (row == move_row && col == move_col)
+			currentUnit = "";
+		else
+			alert("Cannot move one shape on top of another!");
+	}
+	else if (unitGrid[row][col] == "" && currentUnit == "" && buildingGrid[row][col] != "")
+		alert("Tools cannot be moved!");
+}
+
+function placeBuilding(row, col) {
+	if (buildingGrid[row][col] == "" && currentUnit != "") {
+		if (money - costs[currentUnit] < 0) //show error if the user doesn't have enough money
+			alert ("Not enough ink to buy this tool!");
+		else { //otherwise, place the unit
+			buildingGrid[row][col] = currentUnit;
+			money -= costs[currentUnit];
+			if (currentUnit == "compass")
+				moneyPerTurn += 1;
+			if (currentUnit == "inksplot") {
+				var squares = getSquare(row, col);
+				for (i = 0; i < squares.length; i++) {
+					if (buildingGrid[squares[i][0]][squares[i][1]] == "")
+						buildingGrid[squares[i][0]][squares[i][1]] = currentUnit;
+				}
+			}
+		}
+	}
+}
+
+function placeShape(row, col) {
+	if (money - costs[currentUnit] < 0) //show error if the user doesn't have enough money
+		alert ("Not enough ink to buy this shape!");
+	else { //otherwise, place the unit
+		if (currentUnit == "circle" && unitGrid[row][col] != "") {
+			if (unitGrid[row][col] == "circle")
+				unitGrid[row][col] = "twocircles";
+			else if (unitGrid[row][col] == "twocircles")
+				unitGrid[row][col] = "threecircles";
+			else if (unitGrid[row][col] == "threecircles") {
+				alert("Can only stack 3 Circles at once!");
+				return;
+			}
+		}
+		else if (currentUnit != "circle" && unitGrid[row][col] != "")
+			alert("Cannot place a shape or building on top of another!");
+		else
+			unitGrid[row][col] = currentUnit;
+		money -= costs[currentUnit];
+		unitsPlacedThisTurn.push(makeTuple(row, col));
+	}
+}
+
+// Movement Helper functions
+
+function findLegalMoves(row, col) {
+	var moves =[];
+	if (currentUnit == "star") {
+		for (i = 0; i < 8; i++) {
+			if (i != row)
+				moves.push(makeTuple(i, col));
+			if (i != col)
+				moves.push(makeTuple(row, i));
+		}
+	}
+	else {
+		if (row != 0)
+			moves.push(makeTuple(row-1, col));
+		if (col != 0)
+			moves.push(makeTuple(row, col-1));
+		if (row != 7)
+			moves.push(makeTuple(row+1, col));
+		if (col != 7)
+			moves.push(makeTuple(row, col+1));
+		if (currentUnit == "hexagon") {
+			if (row != 0) {
+				if (col != 0)
+					moves.push(makeTuple(row-1, col-1));
+				if (col != 7)
+					moves.push(makeTuple(row-1, col+1));
+			}
+			if (row != 7) {
+				if (col != 0)
+					moves.push(makeTuple(row+1, col-1));
+				if (col != 7)
+					moves.push(makeTuple(row+1, col+1));
+			}
+		}
+	}
+	return moves;
+}
+
+function getSquare(row, col) {
+	var moves = [];
+	if (row != 7) {
+		moves.push(makeTuple(row+1, col));
+		if (col != 7)
+			moves.push(makeTuple(row+1, col+1));
+	}
+	if (col != 7)
+		moves.push(makeTuple(row, col+1));
+	return moves;
+}
+
+/// Reset Functions
 
 function reset() {
 	var result = confirm("Are you sure you want to reset the game?");
 	if (result) {
-		resetTime = true;
-		resetMoney = true;
+		f_resetTime = true;
+		f_resetMoney = true;
+		if (!running)
+			resetTime();
+		f_earlyEnd = false;
 
 		turnCounter = 0;
 		money = 0;
@@ -381,20 +444,41 @@ function reset() {
 		done = false;
 		unitGrid = [["","","","","","","",""],["","","","","","","",""],["","","","","","","",""],["","","","","","","",""],["","","","","","","",""],["","","","","","","",""],["","","","","","","",""],["","","","","","","",""]];
 		buildingGrid = [["","","","","","","",""],["","","","","","","",""],["","","","","","","",""],["","","","","","","",""],["","","","","","","",""],["","","","","","","",""],["","","","","","","",""],["","","","","","","",""]];
-		movementMode = false;
-		buildingMode = false;
 		move_row = 0;
 		move_col = 0;
-		currentUnit = "";
-		unitsPlacedThisTurn = [];
 		scoreHistory = "";
 
-		resetRadio();
-		document.getElementById("timerText").innerHTML = "Start the Game?";
 		document.getElementById("turnCounter").innerHTML = "TURN:";
 		document.getElementById("scoreCount").innerHTML = "SCORE:";
 		document.getElementById("moneyCount").innerHTML = "CURRENT INK:";
 		document.getElementById("score_history").innerHTML = "";
-		document.getElementById("start").value = ">>>";
 	}
+}
+
+function resetRadio() {
+	radioUnits = document.getElementsByName("unit");
+	for (i = 0; i < radioUnits.length; i++)
+		radioUnits[i].checked = false;
+}
+
+function resetTime() {
+	document.getElementById("timerText").style.color = "black";
+	if (f_resetTime) {
+		document.getElementById("timerText").innerHTML = "Start the Game?";
+		f_resetTime = false;
+	}
+	else if (turnCounter == 20) {
+		document.getElementById("timerText").innerHTML = "GAME FINISHED!";
+		done = true;
+	}
+	else
+		document.getElementById("timerText").innerHTML = "TURN FINISHED";
+	document.getElementById("start").value = ">>>";
+	running = false;
+	movementMode = false;
+	buildingMode = false;
+	unitsPlacedThisTurn = [];
+	currentUnit = "";
+	f_earlyEnd = false;
+	resetRadio();
 }
